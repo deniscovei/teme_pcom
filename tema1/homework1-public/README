@@ -1,0 +1,22 @@
+Covei Denis 322CA
+
+Am rezolvat cerintele in integralitate.
+
+Pentru pachetele IPv4, next hop-ul este calculat dupa urmatorul algoritm:
+- Se preproceseaza tabela de rutare intr-un array ce contine perechi
+(masca, intrari rtable), in care separam pentru fiecare masca, ip-urile
+corespunzatoare ei.
+- Intrarile din fiecare pereche sunt retinute in ordine crescatoare dupa
+prefix, asa ca, in momentul unei interogari pentru next hop, complexitatea
+de cautare este nr_masti * log(nr_intrari_masca_i), unde numarul total de
+masti este 32. Astfel, complexitatea de cautare este logaritmica.
+
+Tabela ARP este retinuta dinamic. Daca la un anumit moment, pentru un pachet
+IPv4 nu s-a gasit o adresa MAC corespunzatoare next hop-ului, se trimite un
+ARP Request, iar pachetul curent este introdus intr-o coada. La fiecare ARP
+Reply, adresa MAC obtinuta este cache-uita in tabela ARP, pentru a putea
+actualiza pachetele din coada ce nu au adresa MAC a next hop-ului populata.
+
+In momentul in care se primeste un ARP Reply, pachetele din coada sunt
+verificate pentru a determina daca adresa next hop-ului fiecaruia corespunde
+cu adresa data la reply. Aceste pachete sunt scoase din coada si trimise.

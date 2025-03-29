@@ -1,0 +1,76 @@
+#include <arpa/inet.h>
+#include <netdb.h>      /* struct hostent, gethostbyname */
+#include <netinet/in.h> /* struct sockaddr_in, struct sockaddr */
+#include <stdio.h>      /* printf, sprintf */
+#include <stdlib.h>     /* exit, atoi, malloc, free */
+#include <string.h>     /* memcpy, memset */
+#include <sys/socket.h> /* socket, connect */
+#include <unistd.h>     /* read, write, close */
+
+#include "helpers.h"
+#include "requests.h"
+
+int main(int argc, char *argv[]) {
+    char *message;
+    char *response;
+    int sockfd;
+
+    char *host_ip = "54.170.241.232";
+    char *host = "api.openweathermap.org";
+    char *url = "/api/v1/dummy";
+
+    char *username = "student";
+    char *password = "student";
+
+    char *content_type = "application/x-www-form-urlencoded";
+
+    // Ex 1.1: GET dummy from main server
+    sockfd = open_connection(host_ip, 8080, AF_INET, SOCK_STREAM, 0);
+    message = compute_get_request(host_ip, url, NULL, NULL, 0);
+    printf("----------GET - MESSAGE_BEGIN:----------\n %s\n----------GET - MESSAGE_END----------\n", message);
+
+    send_to_server(sockfd, message);
+
+    response = receive_from_server(sockfd);
+    printf("----------GET - RESPONSE_BEGIN:----------\n %s\n----------GET - RESPONSE_END----------\n", response);
+
+    // Ex 1.2: POST dummy and print response from main server
+    message = compute_post_request(host_ip, url, content_type, NULL, 0, NULL, 0);
+    printf("----------POST - MESSAGE_BEGIN:----------\n %s\n----------POST - MESSAGE_END----------\n", message);
+
+    send_to_server(sockfd, message);
+
+    response = receive_from_server(sockfd);
+    printf("----------POST - RESPONSE_BEGIN:----------\n %s\n----------POST - RESPONSE_END----------\n", response);
+
+    // Ex 2: Login into main server
+    char **body_data = (char **)calloc(1, sizeof(char *));
+    body_data[0] = (char *)calloc(LINELEN, sizeof(char));
+    sprintf(body_data[0], "username=%s&password=%s", username, password);
+    message = compute_post_request(host_ip, "/api/v1/auth/login", content_type, body_data, 1, NULL, 0);
+
+    printf("----------LOGIN - MESSAGE_BEGIN:----------\n %s\n----------LOGIN - MESSAGE_END----------\n", message);
+
+    send_to_server(sockfd, message);
+
+    response = receive_from_server(sockfd);
+    printf("----------LOGIN - RESPONSE_BEGIN:----------\n %s\n----------LOGIN - RESPONSE_END----------\n", response);
+
+    // Ex 3: GET weather key from main server
+    char *cookie = "connect.sid=s%3ADr24LfPBae7pe33LgESeCq-vG0efcFzG.jY9xROlnVeksDDJtTmDnbQF32xhJTrb1svEarTCSPEI; Path=/; HttpOnly";
+    message = compute_get_request(host_ip, "/api/v1/weather/key", NULL, &cookie, 1);
+    printf("----------GET WEATHER KEY - MESSAGE_BEGIN:----------\n %s\n----------GET WEATHER KEY - MESSAGE_END----------\n", message);
+
+    send_to_server(sockfd, message);
+
+    printf("----------GET WEATHER KEY - RESPONSE_BEGIN:----------\n %s\n----------GET WEATHER KEY - RESPONSE_END----------\n", receive_from_server(sockfd));
+    // Ex 4: GET weather data from OpenWeather API
+    // Ex 5: POST weather data for verification to main server
+    // Ex 6: Logout from main server
+
+    // BONUS: make the main server return "Already logged in!"
+
+    // free the allocated data at the end!
+
+    return 0;
+}

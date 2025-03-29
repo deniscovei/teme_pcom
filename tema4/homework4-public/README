@@ -1,0 +1,5 @@
+Am pornit de la implementarea laboratorului 9. Am modificat cererile de GET, POST si DELETE astfel incat sa utilizez operatii pe stringuri.
+
+In general, am separat cererile in mai multe parti: header, body si cookies. Am utilizat un unordered_map in care am retinut informatii privind cookie-ul de autentificare, respectiv token-ul primit, pentru a compune headerele cererilor.
+
+Fisierele JSON le-am parsat manual, folosind apeluri din bibliotecile pe stringuri.
